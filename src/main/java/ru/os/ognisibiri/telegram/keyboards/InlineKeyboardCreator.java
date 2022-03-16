@@ -37,7 +37,7 @@ public class InlineKeyboardCreator {
         addInlineKeyboardMarkupByRowListInArray(BotButtonEnum.CHANGE_LASTNAME, rowList);
         addInlineKeyboardMarkupByRowListInArray(BotButtonEnum.CHANGE_USERNAME, rowList);
 
-        addInlineKeyboardMarkupByRowListInArray(BotButtonEnum.BACK_TO_CHANGE_PROPS, rowList);
+        addInlineKeyboardMarkupByRowListInArray(BotButtonEnum.BACK_TO_LK, rowList);
 
         return getInlineKeyboardMarkupByRowList(rowList);
 

@@ -20,7 +20,7 @@ public class UserSession {
 
     private int statusId;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name="userId")
     private UserInBase user;
 }

@@ -22,7 +22,7 @@ public class UserInputPreparationManager {
     MenuMaker menuMaker;
 
 
-    public SendMessage changePorpInLk(String data, String chatId, User user) {
+    public SendMessage changePorpInLk(String data, String chatId) {
 
         UserInBase userInBase = userService.getByChatId(chatId);
         SessionStatusEnum newSessionStatus = null;

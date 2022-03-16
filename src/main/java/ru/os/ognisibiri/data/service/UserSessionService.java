@@ -18,9 +18,11 @@ public class UserSessionService {
         UserSession session = user.getSession();
         if (session == null) {
             session = new UserSession();
+            session.setUser(user);
         }
 
         session.setStatusId(status.getId());
+
         repo.save(session);
     }
 

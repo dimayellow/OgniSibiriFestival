@@ -43,7 +43,7 @@ public class MenuMaker {
     //
 
     public SendMessage getCancelSession(String chatId, String text) {
-        return createMessageByChatIdTextKeyboard(chatId, text, inlineKeyboardCreator.getChangePropsMenu());
+        return createMessageByChatIdTextKeyboard(chatId, text, inlineKeyboardCreator.getCancelMenu());
     }
 
     //

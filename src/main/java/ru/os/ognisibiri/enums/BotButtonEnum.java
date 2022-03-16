@@ -10,7 +10,7 @@ public enum BotButtonEnum {
     CHANGE_FIRSTNAME("Имя", "/changeLKFirstName"),
     CHANGE_LASTNAME("Фамилия", "/changeLKLastName"),
     CHANGE_USERNAME("Username", "/changeLKUserName"),
-    BACK_TO_CHANGE_PROPS("Назад", "/changeProps"),
+    BACK_TO_LK("Назад", "/lk"),
 
     CANCEL_SESSION("Отменить", "/cancelSession")
 
