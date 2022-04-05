@@ -1,91 +1,166 @@
 package ru.os.ognisibiri.telegram.handlers;
 
-import jdk.jshell.Snippet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.os.ognisibiri.commands.CommandFinder;
+import ru.os.ognisibiri.commands.menuCreators.HaveMenu;
+import ru.os.ognisibiri.commands.menuCreators.MenuCreationHelper;
+import ru.os.ognisibiri.commands.sessions.HasSessionAction;
+import ru.os.ognisibiri.commands.sessions.HasSessionActionCreationHelper;
+import ru.os.ognisibiri.data.entity.BotCommand;
 import ru.os.ognisibiri.data.entity.UserInBase;
 import ru.os.ognisibiri.data.entity.UserSession;
+import ru.os.ognisibiri.data.service.BotCommandsService;
 import ru.os.ognisibiri.data.service.UserService;
 import ru.os.ognisibiri.data.service.UserSessionService;
-import ru.os.ognisibiri.enums.SessionStatusEnum;
-import ru.os.ognisibiri.telegram.utils.MenuMaker;
+import ru.os.ognisibiri.exceptions.InvalidCommandNameException;
+import ru.os.ognisibiri.exceptions.InvalidValueInSessionException;
 
-import static java.awt.SystemColor.text;
-
+import java.util.Optional;
 
 @Component
 public class MessageHandler {
 
     @Autowired
-    MenuMaker menuMaker;
-
-    // Services
+    private UserSessionService userSessionService;
     @Autowired
-    UserService userService;
+    private UserService userService;
     @Autowired
-    UserSessionService userSessionService;
+    private BotCommandsService botCommandsService;
 
 
-    public BotApiMethod<?> answerMessage(Message message) {
+
+    public BotApiMethod<?> processMessage(Message message) throws IllegalArgumentException {
+
+        String chatId   = message.getChatId().toString();
+        String text  = message.getText().trim();
+        User user       = message.getFrom();
+
+        return checkSessionAndSendAnswer(chatId, user, text);
+
+    }
+
+    public BotApiMethod<?> processMessage(CallbackQuery buttonQuery) throws IllegalArgumentException {
+
+        Message message = buttonQuery.getMessage();
 
         String chatId = message.getChatId().toString();
-        String command = message.getText();
-        User user = message.getFrom();
+        User user     = message.getFrom();
+        String text   = buttonQuery.getData().trim();
 
-        // С /start всегда начинается работа.
-        // В дальнейшем действия будут обрабатываться в зависимости от текущего статуса сессии.
-        if (command.equals("/start")) return checkRegistrationAndGetMainMenu(chatId, user);
+        return checkSessionAndSendAnswer(chatId, user, text);
 
-        return processUserMessage(command, userService.getByChatId(chatId), chatId);
-
-
-
-//        throw new IllegalArgumentException();
     }
 
-    private SendMessage processUserMessage (String text, UserInBase userInBase, String chatId) {
+    private SendMessage checkSessionAndSendAnswer(String chatId, User user, String text) throws IllegalArgumentException, NullPointerException {
 
-        if (userInBase.getSession() == null)
-            throw new IllegalArgumentException();
+        UserInBase userInBase = checkRegistrationAndRegisterIfNot(chatId, user);
 
-        int sessionStatusId = userInBase.getSession().getStatusId();
-        SessionStatusEnum statusEnum = SessionStatusEnum.enumById(sessionStatusId);
+        BotCommand currentCommand = userInBase.getSession().getCommand();
 
-        SendMessage reply = null;
-        text = text.trim();
+        BotCommand nextStepCommand;
 
-        if (statusEnum.getStatusName().substring(0, 8).equals("changeLK")) {
-            reply = sendMessageAfterLKPropsChanging(text, userInBase, chatId, statusEnum);
+        if (currentCommand.getActionName() != null) {
+
+            String sessionActionName = currentCommand.getActionName();
+            HasSessionAction sessionAction = CommandFinder.getHasSessionActionMapFinder().getByName(sessionActionName);
+
+            // Нельзя выбрать комманду из прошлого раздела
+            if (text.startsWith("/")) throw new InvalidValueInSessionException(sessionAction.getMessage());
+
+            HasSessionActionCreationHelper helper = sessionAction.getHasSessionActionCreationHelper(chatId, user, text);
+            sessionAction.changeAction(helper);
+
+            nextStepCommand = currentCommand.getBackCommand();
+
+        } else {
+
+            HasSessionAction sessionAction = CommandFinder.getHasSessionActionMapFinder().getByName(text);
+//            nextStepCommand = ;
+
         }
 
-        return  reply;
+//        Optional<Sessional> sessionalOpt = isSessionOpen(userInBase);
+//        if (sessionalOpt.isPresent()) {
+//            // Обработка сессии.
+//            HasSessionAction session = sessionalOpt.get();
+//            // 1. Проверка на "/"
+//            if (text.startsWith("/")) throw new InvalidValueInSessionException(session.getMessage());
+//
+//            HasSessionActionCreationHelper data = session.getHasSessionActionCreationHelper(chatId, user, text);
+//            session.changeAction(data);
 
+//            int backCommandId = session.getReturnCommand();
+//
+//            return createReplyByChatIdAndBackCommandId(chatId, backCommandId);
+
+//        } else {
+            // 1. Поиск по команде создателя меню
+//            HaveMenu menuCreator = CommandFinder.getHaveMenuMapFinder().getByName(text);
+//             BotCommands =
+//            MenuCreationHelper helper = MenuCreationHelper.builder()
+//                    .chatId(chatId)
+//                    .commands(menuCreator.getAvailableCommands())
+//                    .displayText(menuCreator.getDisplayText())
+//                    .build();
+            // пробросить IllegalArgumentException в случе если не нашли
+//        }
+
+        // Если требуется создать сессию - создать.
+        // Создать меню
+
+        return null;
     }
 
-    private SendMessage sendMessageAfterLKPropsChanging(String text, UserInBase userInBase, String chatId, SessionStatusEnum statusEnum) {
-        SendMessage reply;
-        userService.changeBySessionStatus(userInBase, text, statusEnum);
-        userSessionService.clearSession(userInBase);
-        reply = menuMaker.getChangePropsMenu(chatId, userInBase);
-        return reply;
+    private SendMessage createReplyByChatIdAndBackCommandId(String chatId, String backCommandId) {
+        Optional<BotCommand> opt = botCommandsService.getByName(backCommandId);
+        if (!opt.isPresent()) throw new NullPointerException();
+
+        BotCommand backCommand = opt.get();
+
+        MenuCreationHelper helper = MenuCreationHelper.builder()
+                .chatId(chatId)
+                .commands(backCommand.getAvailableCommands())
+                .displayText(backCommand.getDisplayText())
+                .build();
+
+        HaveMenu backMenu = CommandFinder.getHaveMenuMapFinder().getByName(backCommand.getMenuMakerName());
+
+        return backMenu.createMenu(helper);
     }
 
-
-    private SendMessage checkRegistrationAndGetMainMenu(String chatId, User user) {
-
+    private UserInBase checkRegistrationAndRegisterIfNot(String chatId,User user) {
         UserInBase userInBase = userService.getByChatId(chatId);
 
         if (userInBase == null) {
-            userInBase = new UserInBase(user, chatId);
-            userService.save(userInBase);
+            userInBase = registerUser(chatId, user);
         }
-
-        return menuMaker.getMainMenu(chatId);
-
+        return userInBase;
     }
 
+    private UserInBase registerUser(String chatId, User user) {
+
+        UserInBase userInBase = new UserInBase(user, chatId);
+
+        // Все новые пользователи начинают со старта
+        BotCommand StartCommand = findCommandByName("/start");
+        UserSession session = new UserSession();
+        session.setCommand(StartCommand);
+
+        userInBase.setSession(session);
+        userService.save(userInBase);
+
+        return userInBase;
+    }
+
+    private BotCommand findCommandByName(String commandName) {
+        Optional<BotCommand> optionalCommand = botCommandsService.getByName(commandName);
+        if (!optionalCommand.isPresent()) throw new InvalidCommandNameException();
+        return optionalCommand.get();
+    }
 }

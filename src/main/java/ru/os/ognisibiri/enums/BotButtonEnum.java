@@ -1,5 +1,6 @@
 package ru.os.ognisibiri.enums;
 
+@Deprecated
 public enum BotButtonEnum {
 
     START("Главное меню", "/start"),

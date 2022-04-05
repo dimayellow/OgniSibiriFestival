@@ -6,6 +6,7 @@ public enum BotMessageEnum {
 
     ILLEGAL_ARGUMENT_ERROR("Передано некорректное значение"),
     EXCEPTION_ERROR("Произошла непредвиденная ошибка. Обратитесь к администраторам"),
+    INVALID_VALUE_IN_SESSION_ERROR("Во время %s передано некорректное значение"),
 
     // main menu
     MAIN_MENU("Главное меню"),

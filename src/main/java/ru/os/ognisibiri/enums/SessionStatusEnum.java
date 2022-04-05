@@ -3,6 +3,7 @@ package ru.os.ognisibiri.enums;
 import lombok.Getter;
 
 @Getter
+@Deprecated
 public enum SessionStatusEnum {
 
     CHANGE_FIRSTNAME(1, "changeLK firstname"),

@@ -30,23 +30,24 @@ public class UserService {
         repo.save(user);
     }
 
+    @Deprecated
     public void changeBySessionStatus(UserInBase user, String text, SessionStatusEnum statusEnum) {
         if (statusEnum == SessionStatusEnum.CHANGE_FIRSTNAME) changeFirstName(user, text);
         else if (statusEnum == SessionStatusEnum.CHANGE_LASTNAME) changeLastName(user, text);
         else if (statusEnum == SessionStatusEnum.CHANGE_USERNAME) changeUserName(user, text);
     }
 
-    private void changeFirstName(UserInBase user, String name) {
+    public void changeFirstName(UserInBase user, String name) {
         user.setFirstName(name);
         save(user);
     }
 
-    private void changeLastName(UserInBase user, String lastName) {
+    public void changeLastName(UserInBase user, String lastName) {
         user.setLastName(lastName);
         save(user);
     }
 
-    private void changeUserName(UserInBase user, String userName) {
+    public void changeUserName(UserInBase user, String userName) {
         user.setUserName(userName);
         save(user);
     }

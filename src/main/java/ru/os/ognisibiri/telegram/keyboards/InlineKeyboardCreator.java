@@ -3,6 +3,7 @@ package ru.os.ognisibiri.telegram.keyboards;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.os.ognisibiri.data.entity.BotCommand;
 import ru.os.ognisibiri.enums.BotButtonEnum;
 
 import java.util.ArrayList;
@@ -11,6 +12,18 @@ import java.util.List;
 @Component
 public class InlineKeyboardCreator {
 
+    public InlineKeyboardMarkup createStandartMenuByComandLists(List<BotCommand> commandsList, BotCommand backComand) {
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+
+        commandsList.forEach(command -> addInlineKeyboardMarkupByRowListInArray(command, rowList));
+
+        addInlineKeyboardMarkupByRowListInArray(backComand, rowList);
+
+        return getInlineKeyboardMarkupByRowList(rowList);
+    }
+
+    @Deprecated
     public InlineKeyboardMarkup getMainMenu() {
 
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
@@ -20,6 +33,7 @@ public class InlineKeyboardCreator {
         return getInlineKeyboardMarkupByRowList(rowList);
     }
 
+    @Deprecated
     public InlineKeyboardMarkup getLKMenu() {
 
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
@@ -29,6 +43,7 @@ public class InlineKeyboardCreator {
         return getInlineKeyboardMarkupByRowList(rowList);
     }
 
+    @Deprecated
     public InlineKeyboardMarkup getChangePropsMenu() {
 
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
@@ -55,21 +70,15 @@ public class InlineKeyboardCreator {
 
     // system
 
-    public void addInlineKeyboardMarkupByRowListInArray(BotButtonEnum buttonEnum,
+    public void addInlineKeyboardMarkupByRowListInArray(BotCommand command,
                                                         List<List<InlineKeyboardButton>> rowList
-                                                        ) {
-        List<InlineKeyboardButton> keyboardButtonsRow = getOneLineButtonByNuttonEnum(buttonEnum);
+    ) {
+        List<InlineKeyboardButton> keyboardButtonsRow = getOneLineButtonByNuttonEnum(command);
         rowList.add(keyboardButtonsRow);
     }
 
-    private InlineKeyboardMarkup getInlineKeyboardMarkupByRowList(List<List<InlineKeyboardButton>> rowList) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(rowList);
-        return inlineKeyboardMarkup;
-    }
-
-    private List<InlineKeyboardButton> getOneLineButtonByNuttonEnum(BotButtonEnum buttonEnum) {
-        return getOneLineButton(buttonEnum.getName(), buttonEnum.getCommand());
+    private List<InlineKeyboardButton> getOneLineButtonByNuttonEnum(BotCommand command) {
+        return getOneLineButton(command.getDisplayText(), command.getCommandText());
     }
 
     private List<InlineKeyboardButton> getOneLineButton(String buttonName, String buttonCallBackData) {
@@ -81,5 +90,28 @@ public class InlineKeyboardCreator {
         keyboardButtonsRow.add(button);
         return keyboardButtonsRow;
     }
+
+    @Deprecated
+    public void addInlineKeyboardMarkupByRowListInArray(BotButtonEnum buttonEnum,
+                                                        List<List<InlineKeyboardButton>> rowList
+                                                        ) {
+        List<InlineKeyboardButton> keyboardButtonsRow = getOneLineButtonByNuttonEnum(buttonEnum);
+        rowList.add(keyboardButtonsRow);
+    }
+
+    @Deprecated
+    private InlineKeyboardMarkup getInlineKeyboardMarkupByRowList(List<List<InlineKeyboardButton>> rowList) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(rowList);
+        return inlineKeyboardMarkup;
+    }
+
+    @Deprecated
+    private List<InlineKeyboardButton> getOneLineButtonByNuttonEnum(BotButtonEnum buttonEnum) {
+        return getOneLineButton(buttonEnum.getName(), buttonEnum.getCommand());
+    }
+
+
+
 
 }

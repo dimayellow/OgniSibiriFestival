@@ -18,7 +18,10 @@ public class UserSession {
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String id;
 
-    private int statusId;
+    @NotNull
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinColumn(name = "sessionId")
+    private BotCommand command;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name="userId")

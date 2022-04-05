@@ -8,11 +8,10 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.os.ognisibiri.enums.BotMessageEnum;
-import ru.os.ognisibiri.telegram.handlers.CallbackQueryHandler;
+import ru.os.ognisibiri.exceptions.InvalidCommandNameException;
+import ru.os.ognisibiri.exceptions.InvalidValueInSessionException;
 import ru.os.ognisibiri.telegram.handlers.MessageHandler;
 
 import java.io.IOException;
@@ -28,12 +27,10 @@ public class OgniSibiriBot extends SpringWebhookBot {
     String botToken;
 
     MessageHandler messageHandler;
-    CallbackQueryHandler callbackQueryHandler;
 
-    public OgniSibiriBot(SetWebhook setWebhook, MessageHandler messageHandler, CallbackQueryHandler callbackQueryHandler) {
+    public OgniSibiriBot(SetWebhook setWebhook, MessageHandler messageHandler) {
         super(setWebhook);
         this.messageHandler = messageHandler;
-        this.callbackQueryHandler = callbackQueryHandler;
     }
 
 
@@ -41,28 +38,29 @@ public class OgniSibiriBot extends SpringWebhookBot {
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
         try {
             return handleUpdate(update);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (InvalidValueInSessionException e) {
+            return new SendMessage(update.getMessage().getChatId().toString(),
+                    String.format(BotMessageEnum.INVALID_VALUE_IN_SESSION_ERROR.getMessage(), e.getMessage()));
+        } catch (InvalidCommandNameException e) {
+            return new SendMessage(update.getMessage().getChatId().toString(),
+                    BotMessageEnum.EXCEPTION_ERROR.getMessage());
+        } catch (IllegalArgumentException e) {
             return new SendMessage(update.getMessage().getChatId().toString(),
                     BotMessageEnum.ILLEGAL_ARGUMENT_ERROR.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return new SendMessage(update.getMessage().getChatId().toString(),
                     BotMessageEnum.EXCEPTION_ERROR.getMessage());
         }
     }
 
     private BotApiMethod<?> handleUpdate(Update update) throws IOException {
+
         if (update.hasCallbackQuery()) {
-            CallbackQuery callbackQuery = update.getCallbackQuery();
-            return callbackQueryHandler.processCallbackQuery(callbackQuery);
+            return messageHandler.processMessage(update.getCallbackQuery());
         } else {
-            Message message = update.getMessage();
-            if (message != null) {
-                return messageHandler.answerMessage(update.getMessage());
-            }
+            return messageHandler.processMessage(update.getMessage());
         }
-        return null;
+
     }
 
 
