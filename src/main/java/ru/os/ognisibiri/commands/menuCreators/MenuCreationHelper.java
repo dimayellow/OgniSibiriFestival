@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ru.os.ognisibiri.data.entity.BotCommand;
+import ru.os.ognisibiri.data.entity.UserInBase;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +17,8 @@ public class MenuCreationHelper {
     private String displayText;
     private BotCommand backComand;
     private List<BotCommand> commands;
+
+    private UserInBase userInBase;
 
     @Override
     public boolean equals(Object o) {

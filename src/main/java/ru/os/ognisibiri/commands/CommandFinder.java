@@ -9,7 +9,7 @@ import ru.os.ognisibiri.commands.sessions.HasSessionAction;
 @Component
 public class CommandFinder {
 
-    private CommandFinder() {
+    public CommandFinder() {
     }
 
     @Autowired

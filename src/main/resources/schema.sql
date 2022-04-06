@@ -39,6 +39,7 @@ CREATE TABLE bot_commands
     action_name varchar(255),
     menu_maker_name varchar(255) not null,
     back_command_id varchar(255),
+    message varchar(255),
     FOREIGN KEY (back_command_id) REFERENCES bot_commands(command_id)
 );
 

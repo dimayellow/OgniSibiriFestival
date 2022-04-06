@@ -33,6 +33,9 @@ public class BotCommand {
     @Column(name = "menu_maker_name")
     private String menuMakerName;
 
+    @Column(name = "message")
+    private String message;
+
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "back_command_id")
     private BotCommand backCommand;

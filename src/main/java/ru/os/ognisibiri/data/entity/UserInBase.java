@@ -56,6 +56,19 @@ public class UserInBase {
     }
 
     @Override
+    public String toString() {
+        return "UserInBase{" +
+                "id='" + id + '\'' +
+                ", chatId='" + chatId + '\'' +
+                ", userId=" + userId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", userName='" + userName + '\'' +
+                ", languageCode='" + languageCode + '\'' +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

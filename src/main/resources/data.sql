@@ -1,10 +1,10 @@
-INSERT INTO bot_commands (command_id, display_text, menu_maker_name, action_name, back_command_id)
-VALUES ('/start', 'Главное меню', 'standart', null, null),
-       ('/lk', 'Личный кабинет', 'standart', null, '/start'),
-       ('/changeProps', 'Изменить реквизиты', 'standart', null, '/lk'),
-       ('/changeLKFirstName', 'Изменить имя', 'standart', 'changeLkFirstName', '/changeProps'),
-       ('/changeLKLastName', 'Изменить фамилию', 'standart', 'changeLkLastName', '/changeProps'),
-       ('/changeLKUserName', 'Изменить юзернейм', 'standart', 'changeLkUserName', '/changeProps');
+INSERT INTO bot_commands (command_id, display_text, menu_maker_name, action_name, back_command_id, message)
+VALUES ('/start', 'Главное меню', 'standart', null, null, null),
+       ('/lk', 'Личный кабинет', 'standartWithUserInfo', null, '/start', 'Добро пожаловать %s %s %s'),
+       ('/changeProps', 'Изменить реквизиты', 'standartWithUserInfo', null, '/lk', 'Ваше имя: %s \n Фамилия: %s \n Username: %s'),
+       ('/changeLKFirstName', 'Изменить имя', 'standart', 'changeLkFirstName', '/changeProps', null),
+       ('/changeLKLastName', 'Изменить фамилию', 'standart', 'changeLkLastName', '/changeProps', null),
+       ('/changeLKUserName', 'Изменить юзернейм', 'standart', 'changeLkUserName', '/changeProps', null);
 --        (6, '/lk', 'Назад', 'standart');
 
 INSERT INTO available_commands (owner_id, available_command_id)

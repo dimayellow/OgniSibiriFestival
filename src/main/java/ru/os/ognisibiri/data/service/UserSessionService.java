@@ -13,7 +13,7 @@ public class UserSessionService {
     @Autowired
     private UserSessionRepo repo;
 
-    public void setCurrentCommandForUser(BotCommand command, UserInBase user) {
+    public UserInBase setCurrentCommandForUser(BotCommand command, UserInBase user) {
 
         UserSession session = user.getSession();
         if (session == null) {
@@ -21,8 +21,11 @@ public class UserSessionService {
             session.setUser(user);
         }
         session.setCommand(command);
-
         repo.save(session);
+
+        user.setSession(session);
+
+        return user;
     }
 
 

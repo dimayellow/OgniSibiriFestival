@@ -51,7 +51,7 @@ public class MessageHandler {
         Message message = buttonQuery.getMessage();
 
         String chatId = message.getChatId().toString();
-        User user     = message.getFrom();
+        User user     = buttonQuery.getFrom();
         String text   = buttonQuery.getData().trim();
 
         return checkSessionAndSendAnswer(chatId, user, text);
@@ -73,12 +73,7 @@ public class MessageHandler {
     private SendMessage createReturnMenu(String chatId, BotCommand nextStepCommand) {
         HaveMenu menuCreator = commandFinder.getHaveMenuMapFinder().getByName(nextStepCommand.getMenuMakerName());
 
-        MenuCreationHelper helper = MenuCreationHelper.builder()
-                                    .displayText(nextStepCommand.getDisplayText())
-                                    .chatId(chatId)
-                                    .backComand(nextStepCommand.getBackCommand())
-                                    .commands(nextStepCommand.getAvailableCommands())
-                                    .build();
+        MenuCreationHelper helper = menuCreator.getMenuCreationHelper(nextStepCommand, chatId);
 
         return menuCreator.createMenu(helper);
     }
@@ -161,7 +156,7 @@ public class MessageHandler {
 
         // Все новые пользователи начинают со старта
         BotCommand StartCommand = findCommandByName("/start");
-        userSessionService.setCurrentCommandForUser(StartCommand, userInBase);
+        userInBase = userSessionService.setCurrentCommandForUser(StartCommand, userInBase);
 
         return userInBase;
     }

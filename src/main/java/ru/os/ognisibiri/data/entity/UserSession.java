@@ -29,6 +29,15 @@ public class UserSession {
     private UserInBase user;
 
     @Override
+    public String toString() {
+        return "UserSession{" +
+                "id='" + id + '\'' +
+                ", command=" + command +
+                ", user=" + user +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

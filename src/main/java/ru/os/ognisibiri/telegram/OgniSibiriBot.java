@@ -61,7 +61,7 @@ public class OgniSibiriBot extends SpringWebhookBot {
         }
     }
 
-    private BotApiMethod<?> handleUpdate(Update update) throws IOException {
+    private BotApiMethod<?> handleUpdate(Update update) throws IllegalArgumentException {
 
         if (update.hasCallbackQuery()) {
             return messageHandler.processMessage(update.getCallbackQuery());
