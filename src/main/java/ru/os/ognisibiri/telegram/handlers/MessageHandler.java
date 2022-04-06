@@ -14,7 +14,6 @@ import ru.os.ognisibiri.commands.sessions.HasSessionAction;
 import ru.os.ognisibiri.commands.sessions.HasSessionActionCreationHelper;
 import ru.os.ognisibiri.data.entity.BotCommand;
 import ru.os.ognisibiri.data.entity.UserInBase;
-import ru.os.ognisibiri.data.entity.UserSession;
 import ru.os.ognisibiri.data.service.BotCommandsService;
 import ru.os.ognisibiri.data.service.UserService;
 import ru.os.ognisibiri.data.service.UserSessionService;
@@ -32,6 +31,8 @@ public class MessageHandler {
     private UserService userService;
     @Autowired
     private BotCommandsService botCommandsService;
+    @Autowired
+    private CommandFinder commandFinder;
 
 
 
@@ -57,81 +58,90 @@ public class MessageHandler {
 
     }
 
-    private SendMessage checkSessionAndSendAnswer(String chatId, User user, String text) throws IllegalArgumentException, NullPointerException {
+    private SendMessage checkSessionAndSendAnswer(String chatId, User user, String text) throws IllegalArgumentException {
 
         UserInBase userInBase = checkRegistrationAndRegisterIfNot(chatId, user);
 
-        BotCommand currentCommand = userInBase.getSession().getCommand();
+        BotCommand nextStepCommand = getNextStepBotCommand(chatId, user, text, userInBase);
 
+        userSessionService.setCurrentCommandForUser(nextStepCommand, userInBase);
+
+        return createReturnMenu(chatId, nextStepCommand);
+
+    }
+
+    private SendMessage createReturnMenu(String chatId, BotCommand nextStepCommand) {
+        HaveMenu menuCreator = commandFinder.getHaveMenuMapFinder().getByName(nextStepCommand.getMenuMakerName());
+
+        MenuCreationHelper helper = MenuCreationHelper.builder()
+                                    .displayText(nextStepCommand.getDisplayText())
+                                    .chatId(chatId)
+                                    .backComand(nextStepCommand.getBackCommand())
+                                    .commands(nextStepCommand.getAvailableCommands())
+                                    .build();
+
+        return menuCreator.createMenu(helper);
+    }
+
+    private BotCommand getNextStepBotCommand(String chatId, User user, String text, UserInBase userInBase) throws IllegalArgumentException {
         BotCommand nextStepCommand;
+
+        BotCommand currentCommand = userInBase.getSession().getCommand();
 
         if (currentCommand.getActionName() != null) {
 
-            String sessionActionName = currentCommand.getActionName();
-            HasSessionAction sessionAction = CommandFinder.getHasSessionActionMapFinder().getByName(sessionActionName);
-
-            // Нельзя выбрать комманду из прошлого раздела
-            if (text.startsWith("/")) throw new InvalidValueInSessionException(sessionAction.getMessage());
-
-            HasSessionActionCreationHelper helper = sessionAction.getHasSessionActionCreationHelper(chatId, user, text);
-            sessionAction.changeAction(helper);
-
-            nextStepCommand = currentCommand.getBackCommand();
+            nextStepCommand = getBackCommandAfterCompliteSessionAction(chatId, user, text, userInBase);
 
         } else {
 
-            HasSessionAction sessionAction = CommandFinder.getHasSessionActionMapFinder().getByName(text);
-//            nextStepCommand = ;
+            nextStepCommand = checkInputDateAndReturnBotCommand(text, currentCommand);
 
         }
-
-//        Optional<Sessional> sessionalOpt = isSessionOpen(userInBase);
-//        if (sessionalOpt.isPresent()) {
-//            // Обработка сессии.
-//            HasSessionAction session = sessionalOpt.get();
-//            // 1. Проверка на "/"
-//            if (text.startsWith("/")) throw new InvalidValueInSessionException(session.getMessage());
-//
-//            HasSessionActionCreationHelper data = session.getHasSessionActionCreationHelper(chatId, user, text);
-//            session.changeAction(data);
-
-//            int backCommandId = session.getReturnCommand();
-//
-//            return createReplyByChatIdAndBackCommandId(chatId, backCommandId);
-
-//        } else {
-            // 1. Поиск по команде создателя меню
-//            HaveMenu menuCreator = CommandFinder.getHaveMenuMapFinder().getByName(text);
-//             BotCommands =
-//            MenuCreationHelper helper = MenuCreationHelper.builder()
-//                    .chatId(chatId)
-//                    .commands(menuCreator.getAvailableCommands())
-//                    .displayText(menuCreator.getDisplayText())
-//                    .build();
-            // пробросить IllegalArgumentException в случе если не нашли
-//        }
-
-        // Если требуется создать сессию - создать.
-        // Создать меню
-
-        return null;
+        return nextStepCommand;
     }
 
-    private SendMessage createReplyByChatIdAndBackCommandId(String chatId, String backCommandId) {
-        Optional<BotCommand> opt = botCommandsService.getByName(backCommandId);
-        if (!opt.isPresent()) throw new NullPointerException();
+    private BotCommand checkInputDateAndReturnBotCommand(String text, BotCommand currentCommand) {
+        BotCommand nextStepCommand;
+        Optional<BotCommand> optionalBotCommand = botCommandsService.getByName(text);
 
-        BotCommand backCommand = opt.get();
+        if (optionalBotCommand.isEmpty()) throw new InvalidCommandNameException();
 
-        MenuCreationHelper helper = MenuCreationHelper.builder()
-                .chatId(chatId)
-                .commands(backCommand.getAvailableCommands())
-                .displayText(backCommand.getDisplayText())
-                .build();
+        BotCommand inputBotCommand = optionalBotCommand.get();
 
-        HaveMenu backMenu = CommandFinder.getHaveMenuMapFinder().getByName(backCommand.getMenuMakerName());
+        if (!isItsAvailableCommand(currentCommand, inputBotCommand)) throw new InvalidCommandNameException("Воспользуйтесь командами текущего меню.");
 
-        return backMenu.createMenu(helper);
+        nextStepCommand = inputBotCommand;
+        return nextStepCommand;
+    }
+
+    private BotCommand getBackCommandAfterCompliteSessionAction(String chatId, User user, String text, UserInBase userInBase) {
+
+        BotCommand nextStepCommand;
+        BotCommand currentCommand = userInBase.getSession().getCommand();
+
+        if (text.equals(currentCommand.getBackCommand().getCommandId()))
+            nextStepCommand = currentCommand.getBackCommand();
+        else {
+
+            String sessionActionName = currentCommand.getActionName();
+            HasSessionAction sessionAction = commandFinder.getHasSessionActionMapFinder().getByName(sessionActionName);
+
+            // Нельзя выбрать комманду кроме возврата
+            if (text.startsWith("/"))
+                throw new InvalidValueInSessionException(sessionAction.getMessage());
+
+            HasSessionActionCreationHelper helper = sessionAction.getHasSessionActionCreationHelper(chatId, user, text, userInBase);
+            sessionAction.changeAction(helper);
+
+            nextStepCommand = currentCommand.getBackCommand();
+        }
+        return nextStepCommand;
+    }
+
+    private boolean isItsAvailableCommand(BotCommand currentCommand, BotCommand inputBotCommand) {
+        return inputBotCommand.getCommandId().equals("/start")
+                || inputBotCommand.equals(currentCommand.getBackCommand())
+                || currentCommand.getAvailableCommands().contains(inputBotCommand);
     }
 
     private UserInBase checkRegistrationAndRegisterIfNot(String chatId,User user) {
@@ -147,13 +157,11 @@ public class MessageHandler {
 
         UserInBase userInBase = new UserInBase(user, chatId);
 
+        userService.save(userInBase);
+
         // Все новые пользователи начинают со старта
         BotCommand StartCommand = findCommandByName("/start");
-        UserSession session = new UserSession();
-        session.setCommand(StartCommand);
-
-        userInBase.setSession(session);
-        userService.save(userInBase);
+        userSessionService.setCurrentCommandForUser(StartCommand, userInBase);
 
         return userInBase;
     }

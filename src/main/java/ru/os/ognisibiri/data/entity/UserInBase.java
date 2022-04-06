@@ -7,11 +7,12 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "User")
+@Table(name = "user")
 public class UserInBase {
 
     @NotNull
@@ -37,7 +38,8 @@ public class UserInBase {
 
     private boolean isAdmin;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user",
+    cascade = CascadeType.ALL)
     private UserSession session;
 
     public UserInBase(org.telegram.telegrambots.meta.api.objects.User user, String chatId) {
@@ -53,4 +55,16 @@ public class UserInBase {
         this.isAdmin = true;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserInBase that = (UserInBase) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

@@ -2,9 +2,11 @@ package ru.os.ognisibiri.commands;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.os.ognisibiri.commands.menuCreators.HaveMenu;
 import ru.os.ognisibiri.commands.sessions.HasSessionAction;
 
+@Component
 public class CommandFinder {
 
     private CommandFinder() {
@@ -12,11 +14,11 @@ public class CommandFinder {
 
     @Autowired
     @Getter
-    private static MapFinder<HasSessionAction> hasSessionActionMapFinder;
+    private MapFinder<HasSessionAction> hasSessionActionMapFinder;
 
     @Autowired
     @Getter
-    private static MapFinder<HaveMenu> haveMenuMapFinder;
+    private MapFinder<HaveMenu> haveMenuMapFinder;
 
 
 }

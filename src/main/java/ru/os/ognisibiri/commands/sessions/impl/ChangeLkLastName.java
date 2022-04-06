@@ -8,6 +8,8 @@ import ru.os.ognisibiri.commands.sessions.HasSessionActionCreationHelper;
 import ru.os.ognisibiri.data.service.UserService;
 import ru.os.ognisibiri.data.service.UserSessionService;
 
+import java.util.Objects;
+
 @Component
 public class ChangeLkLastName implements HasSessionAction {
 
@@ -37,4 +39,18 @@ public class ChangeLkLastName implements HasSessionAction {
     public String getId() {
         return id;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChangeLkLastName that = (ChangeLkLastName) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
 }

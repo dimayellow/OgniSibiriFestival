@@ -45,8 +45,16 @@ public class OgniSibiriBot extends SpringWebhookBot {
             return new SendMessage(update.getMessage().getChatId().toString(),
                     BotMessageEnum.EXCEPTION_ERROR.getMessage());
         } catch (IllegalArgumentException e) {
+
+            StringBuilder responseMessage = new StringBuilder(BotMessageEnum.ILLEGAL_ARGUMENT_ERROR.getMessage());
+            if (!e.getMessage().isEmpty()) {
+                responseMessage.append(". ");
+                responseMessage.append(e.getMessage());
+            }
+
             return new SendMessage(update.getMessage().getChatId().toString(),
-                    BotMessageEnum.ILLEGAL_ARGUMENT_ERROR.getMessage());
+                    responseMessage.toString());
+
         } catch (Exception e) {
             return new SendMessage(update.getMessage().getChatId().toString(),
                     BotMessageEnum.EXCEPTION_ERROR.getMessage());

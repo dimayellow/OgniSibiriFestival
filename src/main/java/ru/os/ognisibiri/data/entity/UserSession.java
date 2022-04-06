@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 @Entity
 @Data
@@ -20,10 +21,23 @@ public class UserSession {
 
     @NotNull
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    @JoinColumn(name = "sessionId")
+    @JoinColumn(name = "session_id")
     private BotCommand command;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    @JoinColumn(name="userId")
+    @JoinColumn(name="user_id")
     private UserInBase user;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserSession session = (UserSession) o;
+        return id.equals(session.id) && Objects.equals(user, session.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user);
+    }
 }
