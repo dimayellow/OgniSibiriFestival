@@ -2,6 +2,7 @@ package ru.os.ognisibiri.telegram.keyboards.impl;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.os.ognisibiri.data.entity.BotCommand;
 import ru.os.ognisibiri.telegram.keyboards.CreatesKeyboard;
@@ -13,14 +14,14 @@ import java.util.List;
 public class InlineKeyboardCreator implements CreatesKeyboard {
 
     @Override
-    public InlineKeyboardMarkup createStandartMenuByComandLists(List<BotCommand> commandsList, BotCommand backComand) {
+    public ReplyKeyboard createStandartMenuByCommand(BotCommand botComand) {
 
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
 
-        commandsList.forEach(command -> addInlineKeyboardMarkupByRowListInArray(command, rowList));
+        botComand.getAvailableCommands().forEach(command -> addInlineKeyboardMarkupByRowListInArray(command, rowList));
 
-        if (backComand != null)
-            addBackCommandInArray(backComand, rowList);
+        if (botComand.getBackCommand() != null)
+            addBackCommandInArray(botComand.getBackCommand(), rowList);
 
         return getInlineKeyboardMarkupByRowList(rowList);
     }

@@ -72,10 +72,7 @@ public class MessageHandler {
 
     private SendMessage createReturnMenu(String chatId, BotCommand nextStepCommand) {
         HaveMenu menuCreator = commandFinder.getHaveMenuMapFinder().getByName(nextStepCommand.getMenuMakerName());
-
-        MenuCreationHelper helper = menuCreator.getMenuCreationHelper(nextStepCommand, chatId);
-
-        return menuCreator.createMenu(helper);
+        return menuCreator.createMenu(nextStepCommand, chatId);
     }
 
     private BotCommand getNextStepBotCommand(String chatId, User user, String text, UserInBase userInBase) throws IllegalArgumentException {
@@ -84,13 +81,9 @@ public class MessageHandler {
         BotCommand currentCommand = userInBase.getSession().getCommand();
 
         if (currentCommand.getActionName() != null) {
-
             nextStepCommand = getBackCommandAfterCompliteSessionAction(chatId, user, text, userInBase);
-
         } else {
-
             nextStepCommand = checkInputDateAndReturnBotCommand(text, currentCommand);
-
         }
         return nextStepCommand;
     }
@@ -117,7 +110,6 @@ public class MessageHandler {
         if (text.equals(currentCommand.getBackCommand().getCommandId()))
             nextStepCommand = currentCommand.getBackCommand();
         else {
-
             String sessionActionName = currentCommand.getActionName();
             HasSessionAction sessionAction = commandFinder.getHasSessionActionMapFinder().getByName(sessionActionName);
 

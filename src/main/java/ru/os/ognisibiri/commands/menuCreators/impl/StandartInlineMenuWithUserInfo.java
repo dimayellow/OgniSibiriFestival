@@ -28,18 +28,20 @@ public class StandartInlineMenuWithUserInfo implements HaveMenu {
     UserService service;
 
     @Override
-    public SendMessage createMenu(MenuCreationHelper helper) {
+    public SendMessage createMenu(BotCommand botCommand, String chatId) {
 
-        String displayText = String.format(helper.getBackComand().getMessage(),
-                helper.getUserInBase().getLastName(),
-                helper.getUserInBase().getLastName(),
-                helper.getUserInBase().getUserName()
-                );
+        UserInBase userInBase = service.getByChatId(chatId);
 
-        SendMessage sendMessage = new SendMessage(helper.getChatId(), displayText);
+        String displayText = String.format(botCommand.getMessage(),
+                userInBase.getFirstName(),
+                userInBase.getLastName(),
+                userInBase.getUserName()
+        );
+
+        SendMessage sendMessage = new SendMessage(chatId, displayText);
         sendMessage.enableMarkdown(true);
 
-        ReplyKeyboard keyboard = inlineKeyboardCreator.createStandartMenuByComandLists(helper.getCommands(), helper.getBackComand());
+        ReplyKeyboard keyboard = inlineKeyboardCreator.createStandartMenuByCommand(botCommand);
 
         sendMessage.setReplyMarkup(keyboard);
 
@@ -56,9 +58,8 @@ public class StandartInlineMenuWithUserInfo implements HaveMenu {
 
         UserInBase userInBase = service.getByChatId(chatId);
 
-        MenuCreationHelper helper = MenuCreationHelper.builder().commands(botCommand.getAvailableCommands())
-                .backComand(botCommand.getBackCommand())
-                .displayText(botCommand.getMessage())
+        MenuCreationHelper helper = MenuCreationHelper.builder()
+                .thisCommand(botCommand)
                 .chatId(chatId)
                 .userInBase(userInBase)
                 .build();

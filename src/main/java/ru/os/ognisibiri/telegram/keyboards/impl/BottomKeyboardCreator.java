@@ -12,7 +12,7 @@ import java.util.List;
 public class BottomKeyboardCreator implements CreatesKeyboard {
 
         @Override
-        public ReplyKeyboard createStandartMenuByComandLists(List<BotCommand> commandsList, BotCommand backComand) {
+        public ReplyKeyboard createStandartMenuByCommand(BotCommand botComand) {
                 return null;
         }
 

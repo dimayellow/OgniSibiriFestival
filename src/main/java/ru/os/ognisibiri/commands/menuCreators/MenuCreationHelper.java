@@ -14,6 +14,8 @@ import java.util.Objects;
 public class MenuCreationHelper {
 
     private String chatId;
+    private BotCommand thisCommand;
+
     private String displayText;
     private BotCommand backComand;
     private List<BotCommand> commands;

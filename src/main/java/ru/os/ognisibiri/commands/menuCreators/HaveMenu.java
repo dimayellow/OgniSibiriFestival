@@ -8,14 +8,13 @@ import ru.os.ognisibiri.data.entity.UserInBase;
 
 public interface HaveMenu {
 
-    public SendMessage createMenu(MenuCreationHelper helper);
+    public SendMessage createMenu(BotCommand botCommand, String chatId);
     public String getId();
 
     public default MenuCreationHelper getMenuCreationHelper(BotCommand botCommand, String chatId) {
 
-        MenuCreationHelper helper = MenuCreationHelper.builder().commands(botCommand.getAvailableCommands())
-                .backComand(botCommand.getBackCommand())
-                .displayText(botCommand.getDisplayText())
+        MenuCreationHelper helper = MenuCreationHelper.builder()
+                .thisCommand(botCommand)
                 .chatId(chatId)
                 .build();
 

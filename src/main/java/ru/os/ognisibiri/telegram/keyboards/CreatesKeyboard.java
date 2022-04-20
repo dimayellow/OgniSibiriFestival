@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface CreatesKeyboard {
 
-    public ReplyKeyboard createStandartMenuByComandLists(List<BotCommand> commandsList, BotCommand backComand);
+    public ReplyKeyboard createStandartMenuByCommand(BotCommand botComand);
 
 }

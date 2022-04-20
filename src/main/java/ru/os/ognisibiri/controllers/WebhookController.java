@@ -14,7 +14,7 @@ public class WebhookController {
 
     private final OgniSibiriBot ogniSibiriBot;
 
-    @PostMapping("/")
+    @PostMapping("/api/telegram")
     public BotApiMethod<?> onUpdateReceived(@RequestBody Update update) {
         return ogniSibiriBot.onWebhookUpdateReceived(update);
     }

@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import ru.os.ognisibiri.commands.menuCreators.HaveMenu;
 import ru.os.ognisibiri.commands.menuCreators.MenuCreationHelper;
+import ru.os.ognisibiri.data.entity.BotCommand;
 import ru.os.ognisibiri.telegram.keyboards.CreatesKeyboard;
 
 import java.util.Objects;
@@ -21,13 +22,12 @@ public class StandartInlineMenu implements HaveMenu {
     CreatesKeyboard inlineKeyboardCreator;
 
     @Override
-    public SendMessage createMenu(MenuCreationHelper helper) {
+    public SendMessage createMenu(BotCommand botCommand, String chatId) {
 
-
-        SendMessage sendMessage = new SendMessage(helper.getChatId(), helper.getDisplayText());
+        SendMessage sendMessage = new SendMessage(chatId, botCommand.getDisplayText());
         sendMessage.enableMarkdown(true);
 
-        ReplyKeyboard keyboard = inlineKeyboardCreator.createStandartMenuByComandLists(helper.getCommands(), helper.getBackComand());
+        ReplyKeyboard keyboard = inlineKeyboardCreator.createStandartMenuByCommand(botCommand);
 
         sendMessage.setReplyMarkup(keyboard);
 
